@@ -11,4 +11,5 @@ def current_organization(request):
 
 def get_organization_by_id(request, org_id):
     # return HttpResponse(f"You requested Organization ORG-{org_id}")
-    return get_object_or_404(Organization, pk=org_id)
+    orginization = get_object_or_404(Organization, pk=org_id)
+    return HttpResponse(orginization)

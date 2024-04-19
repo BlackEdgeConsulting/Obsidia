@@ -3,7 +3,7 @@
 import os
 import sys
 
-
+# This is the entry point. 
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'obsidia.settings')
