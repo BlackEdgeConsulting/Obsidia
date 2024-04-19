@@ -1,0 +1,1 @@
+![Obsidia Basic Diagram](./assets/obsidia_basic_diagram.png)
