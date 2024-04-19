@@ -3,11 +3,11 @@ In this project we want to create an app called Obsidia which will focus on Case
 ## Getting Started - Dev Setup
 The steps to get setup can be summarized as:
 1. Clone the repo: `git clone https://github.com/BlackEdgeConsulting/Obsidia.git`
-2. Setup the virtual environment
-3. Install the dependencies
-4. Create a branch
+2. [Setup the virtual environment](#setup-the-virtual-environment)
+3. [Install the dependencies](#install-the-dependencies)
+4. [Create a branch](#create-branch)
 5. Do the work
-6. Make a Pull Request into remote branch `develop`
+6. [Make a Pull Request](#make-a-pr) into remote branch `develop`
 
 
 ### Setup the Virtual Environment
