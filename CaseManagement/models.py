@@ -41,6 +41,8 @@ class CaseFile(models.Model):
     # TODO: Make a dictionary containing all the properties on this model listed above
         # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
+        # TODO: This isn't a great way to do it. Example of identifier `OBSID-0001` with this:
+        # OBSID-00012024-04-19 21:02:50+00:00
         return str(self.caseIdentifier) + str(self.dateCreated)
 
 class TargetOfInterest(models.Model):
