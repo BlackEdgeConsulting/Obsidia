@@ -10,6 +10,8 @@ class Organization(models.Model):
     dateLastModified = models.DateTimeField("date last modified")
 
     def __str__(self) -> str:
+        # TODO: Make a dictionary containing all the properties on this model listed above
+        # and return the json.dumps() of that. e.g. { "name": self.name, ... }
         return str(self.name)
 
 class CaseFile(models.Model):
@@ -36,6 +38,8 @@ class CaseFile(models.Model):
     )
     caseIdentifier = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
 
+    # TODO: Make a dictionary containing all the properties on this model listed above
+        # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
         return str(self.caseIdentifier) + str(self.dateCreated)
 
@@ -59,5 +63,7 @@ class TargetOfInterest(models.Model):
     governmentIssueId = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
     additionalIdentifications = models.TextField(max_length=DEFAULT_FIELD_LENGTH)
 
+    # TODO: Make a dictionary containing all the properties on this model listed above
+    # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
         return str(self.fullName)
