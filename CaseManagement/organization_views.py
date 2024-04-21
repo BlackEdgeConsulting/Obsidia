@@ -28,6 +28,14 @@ def get_casefile_by_tags(request, requested_tags: list[dict] = []):
         tag__value__contains=requested_tags["value"]
     )
     return HttpResponse(case_files)
+
+def get_tag_keys_in_use(request):
+    organization = _get_current_users_organization()
+    tags = Tag.objects.filter( # pylint: disable=no-member
+        casefile__in=CaseFile.objects.filter(organization__id=organization.pk) # pylint: disable=no-member
+    ).distinct()
+    tag_keys = list(map(lambda t: t.key, tags))
+    return HttpResponse(tag_keys)
     
 def inventory(request):
     organization = _get_current_users_organization()
