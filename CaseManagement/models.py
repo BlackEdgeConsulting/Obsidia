@@ -69,6 +69,29 @@ class CaseFile(models.Model):
         # OBSID-00012024-04-19 21:02:50+00:00
         return str(self.caseIdentifier) + str(self.dateCreated)
 
+class Tag(models.Model):
+    key = models.CharField(
+        max_length=DEFAULT_FIELD_LENGTH,
+    )
+    value = models.CharField(
+        max_length=DEFAULT_FIELD_LENGTH,
+    )
+    casefile = models.ForeignKey("CaseFile", on_delete=models.CASCADE, default=CaseFile.get_default_pk)
+
+    @classmethod
+    def get_default_pk(cls):
+        tag, created = cls.objects.get_or_create( # pylint: disable=no-member
+            key="name", 
+            defaults=dict(key="name", value=""),
+        )
+        return tag.pk
+    
+    def __str__(self):
+        return json.dumps({
+            "key": str(self.key),
+            "value": str(self.value)
+        })
+
 class TargetOfInterest(models.Model):
     casefile = models.OneToOneField(
         CaseFile,
