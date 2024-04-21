@@ -61,7 +61,7 @@ class CaseFile(models.Model):
         default=STATUS_ACTIVE
     )
     caseIdentifier = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
-
+    tagSet = models.ForeignKey(Tag, on_delete=models.CASCADE, default=Tag.get_default_pk)
     # TODO: Make a dictionary containing all the properties on this model listed above
         # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
