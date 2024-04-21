@@ -1,6 +1,6 @@
-from django.shortcuts import get_list_or_404, get_object_or_404, render
+from django.shortcuts import get_list_or_404, get_object_or_404
 from django.http import Http404, HttpResponse
-from CaseManagement.models import CaseFile, Organization
+from CaseManagement.models import CaseFile, Organization, Tag
 
 
 def current_organization(request):
@@ -21,7 +21,12 @@ def get_casefile_by_tags(request, requested_tags: list[dict] = []):
         "value": "OBSID"
     }
     organization = _get_current_users_organization()
-    case_files = CaseFile.objects.filter(organization__id=organization.pk, tagSet__key=requested_tags["key"], tagSet__value__contains=requested_tags["value"]) # pylint: disable=no-member
+    # case_files = CaseFile.objects.filter(organization__id=organization.pk, tagSet__key=requested_tags["key"], tagSet__value__contains=requested_tags["value"]) # pylint: disable=no-member
+    case_files = CaseFile.objects.filter(
+        organization__id=organization.pk,
+        tag__key=requested_tags["key"],
+        tag__value__contains=requested_tags["value"]
+    )
     return HttpResponse(case_files)
     
 def inventory(request):
