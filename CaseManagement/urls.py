@@ -9,4 +9,5 @@ urlpatterns = [
     path("casefile/<int:casefile_id>", organization_views.get_casefile_by_id, name="casefile"),
     path("casefile/all", organization_views.inventory, name="all_casefiles"),
     path("casefile/by_tags", organization_views.get_casefile_by_tags, name="all_casefiles"),
+    path("tags_in_use", organization_views.get_tag_keys_in_use, name="all_tag_keys")
 ]
