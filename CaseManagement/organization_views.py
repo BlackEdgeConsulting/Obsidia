@@ -1,16 +1,12 @@
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 from django.http import Http404, HttpResponse
 from CaseManagement.models import CaseFile, Organization
-from utils import get_db_handle
 
-
-# handle, db_client = get_db_handle()
 
 def current_organization(request):
     return HttpResponse("Hello, world. You're in the DEFAULT organization\n")
 
 def get_organization_by_id(request, org_id):
-    # return HttpResponse(f"You requested Organization ORG-{org_id}")
     orginization = get_object_or_404(Organization, pk=org_id)
     return HttpResponse(orginization)
 
@@ -18,6 +14,15 @@ def get_casefile_by_id(request, casefile_id):
     organization = _get_current_users_organization()
     casefile = CaseFile.objects.filter(pk=casefile_id, organization__id=organization.pk) # pylint: disable=no-member
     return HttpResponse(casefile)
+
+def get_casefile_by_tags(request, requested_tags: list[dict] = []):
+    requested_tags = {
+        "key": "name",
+        "value": "OBSID"
+    }
+    organization = _get_current_users_organization()
+    case_files = CaseFile.objects.filter(organization__id=organization.pk, tagSet__key=requested_tags["key"], tagSet__value__contains=requested_tags["value"]) # pylint: disable=no-member
+    return HttpResponse(case_files)
     
 def inventory(request):
     organization = _get_current_users_organization()
