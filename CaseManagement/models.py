@@ -51,17 +51,25 @@ class CaseFile(models.Model):
     }
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    dateCreated = models.DateTimeField("date created")
-    dateLastModified = models.DateTimeField("date last modified")
-    createdBy = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
-    lastModifiedBy = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
+    dateCreated = models.DateTimeField("date created", blank=True)
+    dateLastModified = models.DateTimeField("date last modified", blank=True)
+    createdBy = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
+    lastModifiedBy = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
     status = models.CharField(
         max_length=20,
         choices=CASE_FILE_STATUS_CHOICES,
         default=STATUS_ACTIVE
     )
-    caseIdentifier = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
-    tagSet = models.ForeignKey(Tag, on_delete=models.CASCADE, default=Tag.get_default_pk)
+    caseIdentifier = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
+
+    @classmethod
+    def get_default_pk(cls):
+        tag, created = cls.objects.get_or_create( # pylint: disable=no-member
+            organization=1, 
+            defaults=dict(dateCreated="1111-12-16 22:12", dateLastModified="1111-12-16 22:12", createdBy="None", lastModifiedBy="None", caseIdentifier="None"),
+        )
+        return tag.pk
+
     # TODO: Make a dictionary containing all the properties on this model listed above
         # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
