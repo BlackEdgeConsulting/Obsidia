@@ -1,3 +1,4 @@
+import json
 from django.db import models
 
 DEFAULT_FIELD_LENGTH = 300
@@ -13,6 +14,29 @@ class Organization(models.Model):
         # TODO: Make a dictionary containing all the properties on this model listed above
         # and return the json.dumps() of that. e.g. { "name": self.name, ... }
         return str(self.name)
+
+class Tag(models.Model):
+    key = models.CharField(
+        max_length=DEFAULT_FIELD_LENGTH,
+        unique=True
+    )
+    value = models.CharField(
+        max_length=DEFAULT_FIELD_LENGTH,
+    )
+
+    @classmethod
+    def get_default_pk(cls):
+        tag, created = cls.objects.get_or_create( # pylint: disable=no-member
+            key="name", 
+            defaults=dict(key="name", value=""),
+        )
+        return tag.pk
+    
+    def __str__(self):
+        return json.dumps({
+            "key": str(self.key),
+            "value": str(self.value)
+        })
 
 class CaseFile(models.Model):
     STATUS_ACTIVE = "ACTIVE"
