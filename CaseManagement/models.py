@@ -54,13 +54,21 @@ class CaseFile(models.Model):
             defaults=dict(dateCreated="1111-12-16 22:12", dateLastModified="1111-12-16 22:12", createdBy="None", lastModifiedBy="None", caseIdentifier="None"),
         )
         return tag.pk
-        
+    
     # TODO: ASK CHUCK ABOUT THIS ONE. Make a dictionary containing all the properties on this model listed above
         # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
+        case_file_dictionary = {
+            "orginization": self.orginization ,
+            "dateCreated": self.dateCreated ,
+            "dateLastModified": self.dateLastModified ,
+            "createdBy": self.createdBy ,
+            "lastModifiedBy": self.lastModifiedBy ,
+            "status": self.status
+        }
         # TODO: AND THIS ONE This isn't a great way to do it. Example of identifier `OBSID-0001` with this:
         # OBSID-00012024-04-19 21:02:50+00:00
-        return str(self.caseIdentifier) + str(self.dateCreated)
+        return json.dumps(case_file_dictionary)
 
 class Tag(models.Model):
     key = models.CharField(
