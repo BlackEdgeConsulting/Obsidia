@@ -37,7 +37,7 @@ def handle_casefile_inventory(request, **kwargs):
 
 def handle_tags_inventory(request, **kwargs):
     if request.method == ValidHttpType.GET.name:
-        return OrganizationService.inventory()
+        return OrganizationService.get_tag_keys_in_use()
     return HttpResponseNotAllowed([ValidHttpType.GET.name])
 
 def handle_casefile(request, **kwargs):
