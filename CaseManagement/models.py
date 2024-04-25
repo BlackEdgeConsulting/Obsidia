@@ -51,9 +51,32 @@ class CaseFile(models.Model):
     # TODO: Make a dictionary containing all the properties on this model listed above
         # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
-        # TODO: This isn't a great way to do it. Example of identifier `OBSID-0001` with this:
-        # OBSID-00012024-04-19 21:02:50+00:00
+        # TODO: Replace this return value with the commented return line and implement the necessary functions that are called inside of `_build_casefile_identifier()`
+        #return self._build_casefile_identifier()
         return str(self.caseIdentifier) + str(self.dateCreated)
+    
+    def _build_casefile_identifier(self):
+        return f"OBSID-{self._get_next_available_casefile_number()}-{self._make_uuid()}"
+    
+    def _get_next_available_casefile_number(self) -> str:
+        """Get the number of casefiles + 1.
+
+        This method returns the next available open number to use when building the casefile identifier.
+
+        Returns:
+            str: The next open casefile number in the database
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def _make_uuid(cls) -> str:
+        """Make a UUID to use for naming Casefiles.
+
+        Returns:
+            str: UUID string value
+        """
+        # You will need to do some research on using UUIDs in python and how to use them
+        raise NotImplementedError()
 
 class Tag(models.Model):
     key = models.CharField(
