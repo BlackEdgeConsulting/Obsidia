@@ -30,14 +30,27 @@ def handle_organization_by_index(request, **kwargs):
         return OrganizationService.get_organization_by_id(kwargs.get("org_id"))
     return HttpResponseNotAllowed([ValidHttpType.GET.name])
     
-def handle_inventory(request, **kwargs):
+def handle_casefile_inventory(request, **kwargs):
+    if request.method == ValidHttpType.GET.name:
+        return OrganizationService.inventory()
+    return HttpResponseNotAllowed([ValidHttpType.GET.name])
+
+def handle_tags_inventory(request, **kwargs):
     if request.method == ValidHttpType.GET.name:
         return OrganizationService.inventory()
     return HttpResponseNotAllowed([ValidHttpType.GET.name])
 
 def handle_casefile(request, **kwargs):
     if request.method == ValidHttpType.GET.name:
-        return OrganizationService.get_casefile_by_id(kwargs.get("casefile_id"))
+        casefile_id = kwargs.get("casefile_id")
+        if casefile_id:
+            return OrganizationService.get_casefile_by_id(casefile_id)
+        else:
+            requested_tags = {
+                "key": "name",
+                "value": "OBSID"
+            }
+            return OrganizationService.get_casefile_by_tags(requested_tags)
     elif request.method == ValidHttpType.POST.name:
         pass
     return HttpResponseNotAllowed([ValidHttpType.GET.name, ValidHttpType.POST.name])

@@ -1,6 +1,6 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
-from CaseManagement.models import CaseFile, Organization
+from CaseManagement.models import CaseFile, Organization, Tag
 
 class OrganizationService():
     @classmethod
@@ -22,6 +22,26 @@ class OrganizationService():
         organization = cls._get_current_users_organization()
         casefile = CaseFile.objects.filter(pk=casefile_id, organization__id=organization.pk) # pylint: disable=no-member
         return HttpResponse(casefile)
+    
+    @classmethod
+    def get_casefile_by_tags(cls, requested_tags: list[dict] = []):
+        organization = cls._get_current_users_organization()
+        # case_files = CaseFile.objects.filter(organization__id=organization.pk, tagSet__key=requested_tags["key"], tagSet__value__contains=requested_tags["value"]) # pylint: disable=no-member
+        case_files = CaseFile.objects.filter(
+            organization__id=organization.pk,
+            tag__key=requested_tags["key"],
+            tag__value__contains=requested_tags["value"]
+        )
+        return HttpResponse(case_files)
+
+    @classmethod
+    def get_tag_keys_in_use(cls):
+        organization = cls._get_current_users_organization()
+        tags = Tag.objects.filter( # pylint: disable=no-member
+            casefile__in=CaseFile.objects.filter(organization__id=organization.pk) # pylint: disable=no-member
+        ).distinct()
+        tag_keys = list(map(lambda t: t.key, tags))
+        return HttpResponse(tag_keys)
         
     @classmethod
     def inventory(cls):
