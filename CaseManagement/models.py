@@ -58,8 +58,14 @@ class CaseFile(models.Model):
     # TODO: ASK CHUCK ABOUT THIS ONE. Make a dictionary containing all the properties on this model listed above
         # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
-        # TODO: AND THIS ONE This isn't a great way to do it. Example of identifier `OBSID-0001` with this:
-        # OBSID-00012024-04-19 21:02:50+00:00
+        case_file_dictionary = {
+            "organization": self.organization,
+            "dateCreated": self.dateCreated,
+            "dateLastModified": self.dateLastModified,
+            "createdBy": self.createdBy,
+            "lastModifiedBy": self.lastModifiedBy,
+            "status": self.status
+        }
         return json.dumps(case_file_dictionary)
 
 class Tag(models.Model):
