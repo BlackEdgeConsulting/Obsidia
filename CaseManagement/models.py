@@ -12,7 +12,7 @@ class Organization(models.Model):
     
 
     def __str__(self) -> str:
-        orginization_properties = {
+        organization_properties = {
             "name" : self.name,
             "users" : self.users,
             "adminUsers" : self.adminUsers,
@@ -20,7 +20,7 @@ class Organization(models.Model):
             "dateLastModified" : self.dateLastModified
         }   
 
-        return json.dumps(orginization_properties)
+        return json.dumps(organization_properties)
 
 
 class CaseFile(models.Model):
@@ -54,18 +54,10 @@ class CaseFile(models.Model):
             defaults=dict(dateCreated="1111-12-16 22:12", dateLastModified="1111-12-16 22:12", createdBy="None", lastModifiedBy="None", caseIdentifier="None"),
         )
         return tag.pk
-    
+        
     # TODO: ASK CHUCK ABOUT THIS ONE. Make a dictionary containing all the properties on this model listed above
         # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
-        case_file_dictionary = {
-            "orginization": self.orginization ,
-            "dateCreated": self.dateCreated ,
-            "dateLastModified": self.dateLastModified ,
-            "createdBy": self.createdBy ,
-            "lastModifiedBy": self.lastModifiedBy ,
-            "status": self.status
-        }
         # TODO: AND THIS ONE This isn't a great way to do it. Example of identifier `OBSID-0001` with this:
         # OBSID-00012024-04-19 21:02:50+00:00
         return json.dumps(case_file_dictionary)
