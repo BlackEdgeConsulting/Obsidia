@@ -55,8 +55,6 @@ class CaseFile(models.Model):
         )
         return tag.pk
         
-    # TODO: ASK CHUCK ABOUT THIS ONE. Make a dictionary containing all the properties on this model listed above
-        # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
         case_file_dictionary = {
             "organization": self.organization,
