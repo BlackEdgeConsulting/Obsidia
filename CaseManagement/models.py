@@ -9,11 +9,18 @@ class Organization(models.Model):
     adminUsers = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
     dateCreated = models.DateTimeField("date created")
     dateLastModified = models.DateTimeField("date last modified")
+    
 
     def __str__(self) -> str:
-        # TODO: Make a dictionary containing all the properties on this model listed above
-        # and return the json.dumps() of that. e.g. { "name": self.name, ... }
-        return str(self.name)
+        organization_properties = {
+            "name" : self.name,
+            "users" : self.users,
+            "adminUsers" : self.adminUsers,
+            "dateCreated" : self.dateCreated,
+            "dateLastModified" : self.dateLastModified
+        }   
+
+        return json.dumps(organization_properties)
 
 
 class CaseFile(models.Model):
@@ -47,13 +54,17 @@ class CaseFile(models.Model):
             defaults=dict(dateCreated="1111-12-16 22:12", dateLastModified="1111-12-16 22:12", createdBy="None", lastModifiedBy="None", caseIdentifier="None"),
         )
         return tag.pk
-
-    # TODO: Make a dictionary containing all the properties on this model listed above
-        # and return the json.dumps() of that. e.g. { "name": self.name, ... }
+        
     def __str__(self) -> str:
-        # TODO: This isn't a great way to do it. Example of identifier `OBSID-0001` with this:
-        # OBSID-00012024-04-19 21:02:50+00:00
-        return str(self.caseIdentifier) + str(self.dateCreated)
+        case_file_dictionary = {
+            "organization": self.organization,
+            "dateCreated": self.dateCreated,
+            "dateLastModified": self.dateLastModified,
+            "createdBy": self.createdBy,
+            "lastModifiedBy": self.lastModifiedBy,
+            "status": self.status
+        }
+        return json.dumps(case_file_dictionary)
 
 class Tag(models.Model):
     key = models.CharField(
@@ -98,7 +109,24 @@ class TargetOfInterest(models.Model):
     governmentIssueId = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
     additionalIdentifications = models.TextField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
 
-    # TODO: Make a dictionary containing all the properties on this model listed above
-    # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
-        return str(self.fullName)
+
+        target_properties = {
+            "firstname": self.firstName ,
+            "middleNames": self.middleNames ,
+            "lastName":self.lastName , 
+            "fullName":self.fullName ,
+            "additionalNames": self.additionalNames ,
+            "dateOfBirth": self.dateOfBirth ,
+            "currentAddress": self.currentAddress , 
+            "previousAddress": self.previousAddresses ,
+            "associatedAddresses": self.associatedAddresses , 
+            "targetJustification": self.targetJustification , 
+            "socialSecurityNumber": self.socialSecurityNumber , 
+            "driversLicenseNumber": self.driversLicenseNumber , 
+            "governmentIssueId": self.governmentIssueId ,
+            "additionalIdentifications": self.additionalIdentifications
+        }
+
+
+        return json.dumps(target_properties)
