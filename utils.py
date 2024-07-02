@@ -1,6 +1,6 @@
 import json
 import os
-# from pymongo import MongoClient
+from pymongo import MongoClient
 from obsidia.settings import DATABASES
 
 def get_test_database():
