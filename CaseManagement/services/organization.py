@@ -1,52 +1,132 @@
+import json
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
-from CaseManagement.models import CaseFile, Organization, Tag
+from CaseManagement.DTOModels import DTOOrganization, DTOCaseFile
+from CaseManagement.models import CaseFile, Organization
 
 class OrganizationService():
     @classmethod
     def current_organization(cls):
-        return HttpResponse("Hello, world. You're in the DEFAULT organization\n")
+        return "Hello, world. You're in the DEFAULT organization\n"
     
     @classmethod
     def create_new_organization(cls, request):
+        try:
+            new_organization = cls._create_new_organization(request)
+            new_organization.save()
+        except:
+            return HttpResponse("Failed to create new organization!")
         return HttpResponse("Created the new organization!")
 
     @classmethod
     def get_organization_by_id(cls, org_id):
         # return HttpResponse(f"You requested Organization ORG-{org_id}")
-        orginization = get_object_or_404(Organization, pk=org_id)
-        return HttpResponse(orginization)
-
-    @classmethod
-    def get_casefile_by_id(cls, casefile_id):
-        organization = cls._get_current_users_organization()
-        casefile = CaseFile.objects.filter(pk=casefile_id, organization__id=organization.pk) # pylint: disable=no-member
-        return HttpResponse(casefile)
+        result = cls._get_organization_by_id(org_id)
+        return HttpResponse(result) if result is not None else Http404()
     
     @classmethod
-    def get_casefile_by_tags(cls, requested_tags: list[dict] = []):
+    def get_casefile(cls, **kwargs):
+        casefile_id = kwargs.get("casefile_id")
+        result = []
+        if casefile_id:
+            casefiles = OrganizationService._get_casefile_by_id(casefile_id)
+            if casefiles is not None:
+                result.append(*(list(map(lambda c: str(c), casefiles))))
+            else:
+                return None
+        else:
+            requested_tags = {
+                "key": "name",
+                "value": "OBSID"
+            }
+            # TODO: Refactor
+            casefiles = cls._get_casefile_by_tags(requested_tags)
+            if casefiles is not None:
+                result.append(*(list(map(lambda c: str(c), casefiles))))
+            else:
+                return None
+        return result
+    
+    @classmethod
+    def _get_casefile_by_id(cls, casefile_id) -> list|None:
+        organization = cls._get_current_users_organization()
+        casefiles = CaseFile.objects.filter(pk=casefile_id, organization__id=organization.pk) # pylint: disable=no-member
+        if len(casefiles) > 0:
+            dto_result = []
+            for each_casefile in list(casefiles):
+                dto = DTOCaseFile(properties=str(each_casefile))
+                dto_result.append(dto)
+
+            return dto_result
+        else:
+            return None
+    
+    @classmethod
+    def _get_casefile_by_tags(cls, requested_tags: list[dict] = []):
         organization = cls._get_current_users_organization()
         # case_files = CaseFile.objects.filter(organization__id=organization.pk, tagSet__key=requested_tags["key"], tagSet__value__contains=requested_tags["value"]) # pylint: disable=no-member
-        case_files = CaseFile.objects.filter(
+        case_files: str = CaseFile.objects.filter(
             organization__id=organization.pk,
             tag__key=requested_tags["key"],
             tag__value__contains=requested_tags["value"]
         )
-        return HttpResponse(case_files)
+        if len(case_files) > 0:
+            dto_result = []
+            for each_casefile in list(case_files):
+                dto = DTOCaseFile(properties=str(each_casefile))
+                dto_result.append(dto)
 
+            return dto_result
+        else:
+            return None
+
+    # @classmethod
+    # def get_tag_keys_in_use(cls):
+    #     tag_keys = cls._get_tag_keys_in_use()
+    #     return HttpResponse(tag_keys)
+
+    
+    # FIXME: The casefile and tags inventory needs unified such that they can be easily converted into loaded JSON or dumped to Json string
     @classmethod
-    def get_tag_keys_in_use(cls):
+    def get_all_inventory(cls):
         organization = cls._get_current_users_organization()
-        tags = Tag.objects.filter( # pylint: disable=no-member
-            casefile__in=CaseFile.objects.filter(organization__id=organization.pk) # pylint: disable=no-member
-        ).distinct()
-        tag_keys = list(map(lambda t: t.key, tags))
-        return HttpResponse(tag_keys)
+        result = json.dumps({
+            "organization": {
+                organization.name: {
+                    "properties": json.loads(str(organization)),
+                    "inventory": {
+                        # "tags_inventory": cls._get_tag_keys_in_use(),
+                        "casefile_inventory": list(map(lambda c: json.loads(str(c)), list(cls._get_casefile_inventory_by_organization(organization))))
+                    }
+                } 
+            }
+        })
+        return HttpResponse(result)
         
     @classmethod
-    def inventory(cls):
+    def casefile_inventory(cls):
         organization = cls._get_current_users_organization()
-        return cls._get_inventory_by_organization(organization)
+        result = cls._get_casefile_inventory_by_organization(organization)
+        return HttpResponse(result) if result is not None else Http404()
+    
+    @classmethod
+    def _get_organization_by_id(cls, org_id):
+        try:
+            organization = get_object_or_404(Organization, pk=org_id)
+            if isinstance(organization, Organization):
+                dto_organization: DTOOrganization = DTOOrganization(properties=str(organization))
+                clean_dto_org: str = str(dto_organization)
+                return clean_dto_org
+            else:
+                return None
+        except:
+            return None
+    
+    @classmethod
+    def _create_new_organization(cls, request):
+        dto_org = DTOOrganization(properties=json.loads(request.body))
+        new_organization = Organization(dto=dto_org)
+        return new_organization
 
     @classmethod
     def _get_current_users_organization(cls):
@@ -54,15 +134,23 @@ class OrganizationService():
         return get_object_or_404(Organization, pk=current_org_id)
 
     @classmethod
-    def _get_inventory_by_organization(cls, organization):
+    def _get_casefile_inventory_by_organization(cls, organization):
         try:
-            case_files = CaseFile.objects.filter(organization__id=organization.pk) # pylint: disable=no-member
-            return HttpResponse(case_files)
+            return CaseFile.objects.filter(organization__id=organization.pk) # pylint: disable=no-member
         except:
-            return Http404()
+            return None
     
     @classmethod
     def _get_org_id_by_current_user(cls):
         # TODO: After the USER model has been created and authorization has been taken care of
         # then we need to go back here and enhance this
         return 1
+    
+    # @classmethod
+    # def _get_tag_keys_in_use(cls):
+    #     organization = cls._get_current_users_organization()
+    #     tags = Tag.objects.filter( # pylint: disable=no-member
+    #         casefile__in=CaseFile.objects.filter(organization__id=organization.pk) # pylint: disable=no-member
+    #     ).distinct()
+    #     tag_keys = list(map(lambda t: t.key, tags))
+    #     return tag_keys
