@@ -13,7 +13,7 @@ class ValidHttpType(Enum):
 
 def handle_organization_landing(request):
     if request.method == ValidHttpType.GET.name:
-        return OrganizationService.current_organization()
+        return HttpResponse(OrganizationService.current_organization())
     else:
         return HttpResponseNotAllowed([ValidHttpType.GET.name])
     
@@ -29,10 +29,15 @@ def handle_organization_by_index(request, **kwargs):
     if request.method == ValidHttpType.GET.name:
         return OrganizationService.get_organization_by_id(kwargs.get("org_id"))
     return HttpResponseNotAllowed([ValidHttpType.GET.name])
+
+def handle_organization_inventory(request, **kwargs):
+    if request.method == ValidHttpType.GET.name:
+        return OrganizationService.get_all_inventory()
+    return HttpResponseNotAllowed([ValidHttpType.GET.name])
     
 def handle_casefile_inventory(request, **kwargs):
     if request.method == ValidHttpType.GET.name:
-        return OrganizationService.inventory()
+        return OrganizationService.casefile_inventory()
     return HttpResponseNotAllowed([ValidHttpType.GET.name])
 
 def handle_tags_inventory(request, **kwargs):
@@ -42,15 +47,11 @@ def handle_tags_inventory(request, **kwargs):
 
 def handle_casefile(request, **kwargs):
     if request.method == ValidHttpType.GET.name:
-        casefile_id = kwargs.get("casefile_id")
-        if casefile_id:
-            return OrganizationService.get_casefile_by_id(casefile_id)
+        casefile: str = OrganizationService.get_casefile(**kwargs)
+        if casefile is not None:
+            return HttpResponse(casefile)
         else:
-            requested_tags = {
-                "key": "name",
-                "value": "OBSID"
-            }
-            return OrganizationService.get_casefile_by_tags(requested_tags)
+            return Http404()
     elif request.method == ValidHttpType.POST.name:
         pass
     return HttpResponseNotAllowed([ValidHttpType.GET.name, ValidHttpType.POST.name])

@@ -1,10 +1,14 @@
 import json
+import random
+import uuid
 from django.db import models
+from datetime import datetime
+from CaseManagement.DTOModels import DTOOrganization, DTOCaseFile
 
 DEFAULT_FIELD_LENGTH = 300
 
 class Organization(models.Model):
-    name: str = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
+    name: str = models.CharField(max_length=DEFAULT_FIELD_LENGTH, unique=True)
     users = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
     adminUsers = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
     dateCreated = models.DateTimeField("date created")
@@ -13,8 +17,19 @@ class Organization(models.Model):
     def __str__(self) -> str:
         # TODO: Make a dictionary containing all the properties on this model listed above
         # and return the json.dumps() of that. e.g. { "name": self.name, ... }
-        return str(self.name)
-
+        return json.dumps(self.get_dict())
+    
+    def get_dto(self) -> DTOOrganization:
+        return DTOOrganization(properties=str(self))
+    
+    def get_dict(self) -> dict:
+        return {
+            "name": str(self.name),
+            "users": str(self.users),
+            "adminUsers": str(self.adminUsers),
+            "dateCreated": str(self.dateCreated),
+            "dateLastModified": str(self.dateLastModified)
+        }
 
 class CaseFile(models.Model):
     STATUS_ACTIVE = "ACTIVE"
@@ -40,43 +55,40 @@ class CaseFile(models.Model):
     )
     caseIdentifier = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
 
-    @classmethod
-    def get_default_pk(cls):
-        tag, created = cls.objects.get_or_create( # pylint: disable=no-member
-            organization=1, 
-            defaults=dict(dateCreated="1111-12-16 22:12", dateLastModified="1111-12-16 22:12", createdBy="None", lastModifiedBy="None", caseIdentifier="None"),
-        )
-        return tag.pk
-
-    # TODO: Make a dictionary containing all the properties on this model listed above
-        # and return the json.dumps() of that. e.g. { "name": self.name, ... }
     def __str__(self) -> str:
-        # TODO: This isn't a great way to do it. Example of identifier `OBSID-0001` with this:
-        # OBSID-00012024-04-19 21:02:50+00:00
-        return str(self.caseIdentifier) + str(self.dateCreated)
-
-class Tag(models.Model):
-    key = models.CharField(
-        max_length=DEFAULT_FIELD_LENGTH,
-    )
-    value = models.CharField(
-        max_length=DEFAULT_FIELD_LENGTH,
-    )
-    casefile = models.ForeignKey("CaseFile", on_delete=models.CASCADE, default=CaseFile.get_default_pk)
-
-    @classmethod
-    def get_default_pk(cls):
-        tag, created = cls.objects.get_or_create( # pylint: disable=no-member
-            key="name", 
-            defaults=dict(key="name", value=""),
-        )
-        return tag.pk
+        return json.dumps(self.get_dict())
     
-    def __str__(self):
-        return json.dumps({
-            "key": str(self.key),
-            "value": str(self.value)
-        })
+    def get_dict(self) -> dict:
+        return {
+            "caseIdentifier": str(self.caseIdentifier),
+            "organization": json.loads(str(self.organization)),
+            "dateCreated": str(self.dateCreated),
+            "dateLastModified": str(self.dateLastModified),
+            "createdBy": str(self.createdBy),
+            "status": str(self.status)
+        }
+    
+    def get_dto(self) -> DTOOrganization:
+        return DTOCaseFile(properties=str(self))
+
+# class Tag(models.Model):
+#     key = models.CharField(
+#         max_length=DEFAULT_FIELD_LENGTH,
+#     )
+#     value = models.CharField(
+#         max_length=DEFAULT_FIELD_LENGTH,
+#     )
+#     # casefile = models.ForeignKey("CaseFile", on_delete=models.CASCADE, default=CaseFile.get_default_pk)
+#     casefile = models.ForeignKey("CaseFile",    
+#                        on_delete=models.CASCADE,
+#                        default=get_sentinel_casefile_id
+#                  )
+    
+#     def __str__(self):
+#         return json.dumps({
+#             "key": str(self.key),
+#             "value": str(self.value)
+#         })
 
 class TargetOfInterest(models.Model):
     casefile = models.OneToOneField(
