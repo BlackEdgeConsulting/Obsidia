@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='casefile',
             name='tagSet',
-            field=models.ForeignKey(default=CaseManagement.models.Tag.get_default_pk, null=True, on_delete=django.db.models.deletion.SET_NULL, to='CaseManagement.tag'),
+            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, to='CaseManagement.tag'),
         ),
         migrations.AlterField(
             model_name='tag',
