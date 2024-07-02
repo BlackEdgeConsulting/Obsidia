@@ -12,6 +12,34 @@
             "args": [
                 "runserver"
             ],
+            "env": {
+                "CSRF_COOKIE_SECURE": "false"
+            },
+            "django": true
+        },
+        {
+            "name": "[Test] Obsidia with MongoDB Docker Compose",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runserver"
+            ],
+            "env": {
+                "CSRF_COOKIE_SECURE": "false"
+            },
+            "django": true
+        },
+        {
+            "name": "Django Test All",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "program": "${workspaceFolder}/manage.py",
+            "args": ["test"],
+            "env": {
+                "DJANGO_SETTINGS_MODULE": "obsidia.settings"
+            },
             "django": true
         }
     ]
