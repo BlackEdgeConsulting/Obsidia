@@ -9,6 +9,7 @@ urlpatterns = [
     path("inventory", views.handle_organization_inventory, name="inventory"),
     path("inventory/casefiles", views.handle_casefile_inventory, name="inventory"),
     path("inventory/tags", views.handle_tags_inventory, name="inventory"),
+    path("casefile", views.handle_casefile, name="casefile"),
     path("casefile/<int:casefile_id>", views.handle_casefile, name="casefile"),
     path("casefile/by_tags", views.handle_casefile, name="all_casefiles"),
 ]
