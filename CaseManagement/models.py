@@ -11,8 +11,8 @@ class Organization(models.Model):
     name: str = models.CharField(max_length=DEFAULT_FIELD_LENGTH, unique=True)
     users = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
     adminUsers = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
-    dateCreated = models.DateTimeField("date created")
-    dateLastModified = models.DateTimeField("date last modified")
+    dateCreated = models.DateTimeField("date created", auto_now_add=True)
+    dateLastModified = models.DateTimeField("date last modified", auto_now=True)
 
     def __str__(self) -> str:
         # TODO: Make a dictionary containing all the properties on this model listed above
@@ -21,6 +21,15 @@ class Organization(models.Model):
     
     def get_dto(self) -> DTOOrganization:
         return DTOOrganization(properties=str(self))
+    
+    @classmethod
+    def convert_from_dto(cls, dto: DTOOrganization):
+        cls.name = dto.name
+        cls.users = dto.users
+        cls.adminUsers = dto.adminUsers
+        # cls.dateLastModified = models.DateTimeField.auto_now()
+        # cls.dateCreated = datetime.now()
+        return cls
     
     def get_dict(self) -> dict:
         return {
@@ -34,18 +43,23 @@ class Organization(models.Model):
 class CaseFile(models.Model):
     STATUS_ACTIVE = "ACTIVE"
     STATUS_ARCHIVE = "ARCHIVE"
+    STATUS_INACTIVE = "INACTIVE"
     STATUS_LONGTERM_MONITOR = "LONGTERM MONITOR"
     STATUS_DECEASED = "DECEASED"
+    STATUS_PENDING = "PENDING"
     CASE_FILE_STATUS_CHOICES = {
         STATUS_ACTIVE: "Active",
         STATUS_ARCHIVE: "Archive",
         STATUS_LONGTERM_MONITOR: "Longterm Monitor",
-        STATUS_DECEASED: "Deceased"
+        STATUS_DECEASED: "Deceased",
+        STATUS_INACTIVE: "Inactive",
+        STATUS_PENDING: "Pending"
     }
 
+    caseIdentifier = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    dateCreated = models.DateTimeField("date created", blank=True)
-    dateLastModified = models.DateTimeField("date last modified", blank=True)
+    dateCreated = models.DateTimeField("date created", auto_now_add=True)
+    dateLastModified = models.DateTimeField("date last modified", auto_now=True)
     createdBy = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
     lastModifiedBy = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
     status = models.CharField(
@@ -53,7 +67,6 @@ class CaseFile(models.Model):
         choices=CASE_FILE_STATUS_CHOICES,
         default=STATUS_ACTIVE
     )
-    caseIdentifier = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
 
     def __str__(self) -> str:
         return json.dumps(self.get_dict())
