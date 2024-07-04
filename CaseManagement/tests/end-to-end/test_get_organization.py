@@ -6,7 +6,7 @@ from CaseManagement.models import Organization
 
 
 
-class OrganizationModelsTestCase(TestCase):
+class OrganizationModelsGetTestCase(TestCase):
     range_of_entries = range(1,1000)
     fixtures = ["obsidia-fixtures-organization"]
 
