@@ -53,5 +53,5 @@ def handle_casefile(request, **kwargs):
         else:
             return Http404()
     elif request.method == ValidHttpType.POST.name:
-        pass
+        return OrganizationService.create_new_casefile(request)
     return HttpResponseNotAllowed([ValidHttpType.GET.name, ValidHttpType.POST.name])
