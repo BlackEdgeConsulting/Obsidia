@@ -15,8 +15,8 @@ class OrganizationService():
             new_organization = cls._create_new_organization(request)
             new_organization.save()
         except:
-            return HttpResponse("Failed to create new organization!")
-        return HttpResponse("Created the new organization!")
+            return HttpResponse("Failed to create new organization!", status=400)
+        return HttpResponse("Created the new organization!", status=201)
 
     @classmethod
     def get_organization_by_id(cls, org_id):
@@ -46,6 +46,49 @@ class OrganizationService():
             else:
                 return None
         return result
+    
+    @classmethod
+    def create_new_casefile(cls, request):
+        try:
+            new_casefile = cls._create_new_casefile(request)
+            new_casefile.save()
+        except:
+            return HttpResponse("Failed to create new casefile!", status=400)
+        return HttpResponse("Created the new casefile!", status=201)
+    
+    # FIXME: The casefile and tags inventory needs unified such that they can be easily converted into loaded JSON or dumped to Json string
+    @classmethod
+    def get_all_inventory(cls):
+        organization = cls._get_current_users_organization()
+        result = json.dumps({
+            "organization": {
+                organization.name: {
+                    "properties": json.loads(str(organization)),
+                    "inventory": {
+                        # "tags_inventory": cls._get_tag_keys_in_use(),
+                        "casefile_inventory": list(map(lambda c: json.loads(str(c)), list(cls._get_casefile_inventory_by_organization(organization))))
+                    }
+                } 
+            }
+        })
+        return HttpResponse(result)
+        
+    @classmethod
+    def casefile_inventory(cls):
+        organization = cls._get_current_users_organization()
+        result = cls._get_casefile_inventory_by_organization(organization)
+        return HttpResponse(result) if result is not None else Http404()
+    
+    @classmethod
+    def _create_new_casefile(cls, request) -> CaseFile:
+        decoded_request = request.body.decode("UTF-8")
+        dto_casefile = DTOCaseFile(properties=decoded_request)
+        org = Organization.objects.get(pk=dto_casefile.organization)
+        return CaseFile(
+            caseIdentifier=dto_casefile.caseIdentifier,
+            organization=org,
+            status=dto_casefile.status
+        )
     
     @classmethod
     def _get_casefile_by_id(cls, casefile_id) -> list|None:
@@ -84,30 +127,6 @@ class OrganizationService():
     # def get_tag_keys_in_use(cls):
     #     tag_keys = cls._get_tag_keys_in_use()
     #     return HttpResponse(tag_keys)
-
-    
-    # FIXME: The casefile and tags inventory needs unified such that they can be easily converted into loaded JSON or dumped to Json string
-    @classmethod
-    def get_all_inventory(cls):
-        organization = cls._get_current_users_organization()
-        result = json.dumps({
-            "organization": {
-                organization.name: {
-                    "properties": json.loads(str(organization)),
-                    "inventory": {
-                        # "tags_inventory": cls._get_tag_keys_in_use(),
-                        "casefile_inventory": list(map(lambda c: json.loads(str(c)), list(cls._get_casefile_inventory_by_organization(organization))))
-                    }
-                } 
-            }
-        })
-        return HttpResponse(result)
-        
-    @classmethod
-    def casefile_inventory(cls):
-        organization = cls._get_current_users_organization()
-        result = cls._get_casefile_inventory_by_organization(organization)
-        return HttpResponse(result) if result is not None else Http404()
     
     @classmethod
     def _get_organization_by_id(cls, org_id):
@@ -124,9 +143,13 @@ class OrganizationService():
     
     @classmethod
     def _create_new_organization(cls, request):
-        dto_org = DTOOrganization(properties=json.loads(request.body))
-        new_organization = Organization(dto=dto_org)
-        return new_organization
+        decoded_request = request.body.decode("UTF-8")
+        dto_org = DTOOrganization(properties=decoded_request)
+        return Organization(
+            name=dto_org.name,
+            users=dto_org.users,
+            adminUsers=dto_org.adminUsers
+        )
 
     @classmethod
     def _get_current_users_organization(cls):
