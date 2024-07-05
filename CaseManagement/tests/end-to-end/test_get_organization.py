@@ -34,6 +34,17 @@ class OrganizationModelsGetTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode("UTF-8"), '{"name": "Fivespan100775", "users": "[{\'name\': \'jrykert0\', \'roleId\': 6368}, {\'name\': \'wfearne1\', \'roleId\': 3684}, {\'name\': \'ncouche2\', \'roleId\': 2558}]", "adminUsers": "[{\'name\': \'dzaple0\', \'roleId\': 4249}, {\'name\': \'lsalterne1\', \'roleId\': 6994}]", "dateCreated": "2024-06-13 14:45:41+00:00", "dateLastModified": "2024-01-29 19:03:40+00:00"}')
 
+    def test_organization_GET_org_by_id(self):
+        for each_org_id in self.range_of_entries:
+            response = self.client.get(f"/organization/{each_org_id}", content_type="application/json", HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+            response_org = response.content.decode("UTF-8")
+
+            db_org = Organization.objects.get(pk=each_org_id)
+            dto_org = db_org.get_dto()
+            
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(str(dto_org), response_org)
+
     def test_each_org_in_db_has_keys_should_succeed(self):
         """Test that organization converted to string should succeed"""
         for each_org_id in list(self.range_of_entries):
