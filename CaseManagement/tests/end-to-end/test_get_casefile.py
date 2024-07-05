@@ -43,10 +43,10 @@ class CaseFileModelsTestCase(TestCase):
 
     def test_casefile_GET_all_casefiles_in_org_should_succeed(self):
         """Test that we can get all casefiles in an org."""
-        response = self.client.get("/organization/casefile/all")
+        response = self.client.get("/organization/inventory/casefiles")
         response_casefiles = response.content.decode("UTF-8")
         loaded_resp_casefiles = json.loads(response_casefiles)
-        self.assertCountEqual(loaded_resp_casefiles, 1000)
+        self.assertEqual(len(loaded_resp_casefiles), 1000)
 
     def test_casefile_GET_casefile_by_tags_should_succeed(self):
         pass
