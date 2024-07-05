@@ -3,11 +3,18 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 from CaseManagement.DTOModels import DTOOrganization, DTOCaseFile
 from CaseManagement.models import CaseFile, Organization
+from CaseManagement.services.casefile import CaseFileService
 
 class OrganizationService():
     @classmethod
-    def current_organization(cls):
-        return "Hello, world. You're in the DEFAULT organization\n"
+    def get_current_organization(cls):
+        result = cls._get_current_users_organization()
+        return HttpResponse(result) if result is not None else Http404
+    
+    @classmethod
+    def get_current_organization_id(cls):
+        result = cls._get_org_id_by_current_user()
+        return HttpResponse(result) if result is not None else Http404
     
     @classmethod
     def create_new_organization(cls, request):
@@ -23,38 +30,7 @@ class OrganizationService():
         # return HttpResponse(f"You requested Organization ORG-{org_id}")
         result = cls._get_organization_by_id(org_id)
         return HttpResponse(result) if result is not None else Http404()
-    
-    @classmethod
-    def get_casefile(cls, **kwargs):
-        casefile_id = kwargs.get("casefile_id")
-        result = []
-        if casefile_id:
-            casefiles = OrganizationService._get_casefile_by_id(casefile_id)
-            if casefiles is not None:
-                result.append(*(list(map(lambda c: str(c), casefiles))))
-            else:
-                return None
-        else:
-            requested_tags = {
-                "key": "name",
-                "value": "OBSID"
-            }
-            # TODO: Refactor
-            casefiles = cls._get_casefile_by_tags(requested_tags)
-            if casefiles is not None:
-                result.append(*(list(map(lambda c: str(c), casefiles))))
-            else:
-                return None
-        return result
-    
-    @classmethod
-    def create_new_casefile(cls, request):
-        try:
-            new_casefile = cls._create_new_casefile(request)
-            new_casefile.save()
-        except:
-            return HttpResponse("Failed to create new casefile!", status=400)
-        return HttpResponse("Created the new casefile!", status=201)
+
     
     # FIXME: The casefile and tags inventory needs unified such that they can be easily converted into loaded JSON or dumped to Json string
     @classmethod
@@ -66,62 +42,18 @@ class OrganizationService():
                     "properties": json.loads(str(organization)),
                     "inventory": {
                         # "tags_inventory": cls._get_tag_keys_in_use(),
-                        "casefile_inventory": list(map(lambda c: json.loads(str(c)), list(cls._get_casefile_inventory_by_organization(organization))))
+                        "casefile_inventory": list(map(lambda c: json.loads(str(c)), list(CaseFileService.get_casefile(current_organization_id=organization.pk))))
                     }
                 } 
             }
         })
-        return HttpResponse(result)
-        
-    @classmethod
-    def casefile_inventory(cls):
-        organization = cls._get_current_users_organization()
-        result = cls._get_casefile_inventory_by_organization(organization)
         return HttpResponse(result) if result is not None else Http404()
     
     @classmethod
-    def _create_new_casefile(cls, request) -> CaseFile:
-        decoded_request = request.body.decode("UTF-8")
-        dto_casefile = DTOCaseFile(properties=decoded_request)
-        org = Organization.objects.get(pk=dto_casefile.organization)
-        return CaseFile(
-            caseIdentifier=dto_casefile.caseIdentifier,
-            organization=org,
-            status=dto_casefile.status
-        )
-    
-    @classmethod
-    def _get_casefile_by_id(cls, casefile_id) -> list|None:
+    def casefile_inventory(cls):
         organization = cls._get_current_users_organization()
-        casefiles = CaseFile.objects.filter(pk=casefile_id, organization__id=organization.pk) # pylint: disable=no-member
-        if len(casefiles) > 0:
-            dto_result = []
-            for each_casefile in list(casefiles):
-                dto = DTOCaseFile(properties=str(each_casefile))
-                dto_result.append(dto)
-
-            return dto_result
-        else:
-            return None
-    
-    @classmethod
-    def _get_casefile_by_tags(cls, requested_tags: list[dict] = []):
-        organization = cls._get_current_users_organization()
-        # case_files = CaseFile.objects.filter(organization__id=organization.pk, tagSet__key=requested_tags["key"], tagSet__value__contains=requested_tags["value"]) # pylint: disable=no-member
-        case_files: str = CaseFile.objects.filter(
-            organization__id=organization.pk,
-            tag__key=requested_tags["key"],
-            tag__value__contains=requested_tags["value"]
-        )
-        if len(case_files) > 0:
-            dto_result = []
-            for each_casefile in list(case_files):
-                dto = DTOCaseFile(properties=str(each_casefile))
-                dto_result.append(dto)
-
-            return dto_result
-        else:
-            return None
+        result: list[CaseFile] = CaseFileService.get_casefile(current_organization_id=organization.pk)
+        return HttpResponse(result) if result is not None else Http404()
 
     # @classmethod
     # def get_tag_keys_in_use(cls):
@@ -155,13 +87,6 @@ class OrganizationService():
     def _get_current_users_organization(cls):
         current_org_id = cls._get_org_id_by_current_user()
         return get_object_or_404(Organization, pk=current_org_id)
-
-    @classmethod
-    def _get_casefile_inventory_by_organization(cls, organization):
-        try:
-            return CaseFile.objects.filter(organization__id=organization.pk) # pylint: disable=no-member
-        except:
-            return None
     
     @classmethod
     def _get_org_id_by_current_user(cls):
