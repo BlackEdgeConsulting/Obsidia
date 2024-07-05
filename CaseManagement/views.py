@@ -2,6 +2,7 @@ from enum import Enum
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 from django.http import Http404, HttpResponse, HttpResponseNotAllowed
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from CaseManagement.services.casefile import CaseFileService
 from CaseManagement.services.organization import OrganizationService
 from utils import get_db_handle
 
@@ -13,7 +14,7 @@ class ValidHttpType(Enum):
 
 def handle_organization_landing(request):
     if request.method == ValidHttpType.GET.name:
-        return HttpResponse(OrganizationService.current_organization())
+        return HttpResponse(OrganizationService.get_current_organization())
     else:
         return HttpResponseNotAllowed([ValidHttpType.GET.name])
     
@@ -47,11 +48,12 @@ def handle_tags_inventory(request, **kwargs):
 
 def handle_casefile(request, **kwargs):
     if request.method == ValidHttpType.GET.name:
-        casefile: str = OrganizationService.get_casefile(**kwargs)
+        kwargs["current_organization_id"] = OrganizationService.get_current_organization_id().content.decode("UTF-8")
+        casefile: str = CaseFileService.get_casefile(**kwargs)
         if casefile is not None:
             return HttpResponse(casefile)
         else:
             return Http404()
     elif request.method == ValidHttpType.POST.name:
-        return OrganizationService.create_new_casefile(request)
+        return CaseFileService.create_new_casefile(request)
     return HttpResponseNotAllowed([ValidHttpType.GET.name, ValidHttpType.POST.name])
