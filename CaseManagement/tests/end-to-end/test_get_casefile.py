@@ -52,7 +52,10 @@ class CaseFileModelsTestCase(TestCase):
         pass
 
     def test_casefile_POST_casefile_by_index_should_fail(self):
-        pass
+        for each_casefile_id in range(1,100):
+            response = self.client.post(f"/organization/casefile/{each_casefile_id}")
+            self.assertEqual(response.status_code, 400)
 
     def test_casefile_POST_casefile_all_should_fail(self):
-        pass
+        response = self.client.post(f"/organization/inventory/casefile")
+        self.assertEqual(response.status_code, 404)
