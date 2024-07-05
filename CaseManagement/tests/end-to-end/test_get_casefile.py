@@ -41,7 +41,7 @@ class CaseFileModelsTestCase(TestCase):
                 dict_org = casefile_obj.get_dict()
                 self.assertIn(each_key, dict_org)
 
-    def test_casefile_GET_all_casefiles_in_org_should_succeed(self):
+    def test_casefile_inventory_GET_all_casefiles_in_org_should_succeed(self):
         """Test that we can get all casefiles in an org."""
         response = self.client.get("/organization/inventory/casefiles")
         response_casefiles = response.content.decode("UTF-8")
