@@ -22,18 +22,21 @@ class BaseDTO():
             if key not in properties_to_ignore:
                 setattr(self, key, value)
 
-class DTOOrganization(BaseDTO):
-    name: str = ""
-    users: list|str = ""
-    adminUsers: list|str = ""
-    
-    def __init__(self, *args, **kwargs) -> None:
+    def load_and_validate_properties(self, kwargs):
         properties: str = kwargs.get("properties")
         loaded_properties: dict = json.loads(properties)
         if self.is_valid(loaded_properties):
             self.set_properties(loaded_properties)
         else:
             raise RuntimeError(f"Request object was not valid. Request: {properties}")
+
+class DTOOrganization(BaseDTO):
+    name: str = ""
+    users: list|str = ""
+    adminUsers: list|str = ""
+    
+    def __init__(self, *args, **kwargs) -> None:
+        self.load_and_validate_properties(kwargs)
 
     def __str__(self) -> str:
         return json.dumps(self.get_dict())
@@ -66,13 +69,8 @@ class DTOCaseFile(BaseDTO):
     caseIdentifier: str = ""
 
     def __init__(self, *args, **kwargs) -> None:
-        properties: str = kwargs.get("properties")
-        loaded_properties: dict = json.loads(properties)
-        if self.is_valid(loaded_properties):
-            self.set_properties(loaded_properties)
-        else:
-            raise RuntimeError(f"Request object was not valid. Request: {properties}")
-
+        self.load_and_validate_properties(kwargs)
+        
     def __str__(self) -> str:
         return json.dumps(self.get_dict())
     
@@ -109,3 +107,7 @@ class DTOTargetOfInterest():
     additionalNames = ""
     dateOfBirth = ""
     currentAddress = ""
+
+class DTOCaseFileTag():
+    key: str = ""
+    value: str = ""
