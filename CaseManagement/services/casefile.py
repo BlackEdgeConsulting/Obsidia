@@ -7,9 +7,9 @@ from CaseManagement.models import CaseFile, Organization
 class CaseFileService():
     @classmethod
     def get_casefile(cls, **kwargs):
-        casefile_id = kwargs.get("casefile_id")
-        organization_id = kwargs.get("current_organization_id")
-        requested_tags = kwargs.get("requested_tags")
+        casefile_id: int = kwargs.get("casefile_id")
+        organization_id: int = kwargs.get("current_organization_id")
+        requested_tags: dict = kwargs.get("requested_tags")
         result = []
         if casefile_id:
             # If there's an ID then we only get one
@@ -30,7 +30,7 @@ class CaseFileService():
             #     "key": "name",
             #     "value": "OBSID"
             # }
-            casefiles = cls._get_casefile_by_tags(requested_tags)
+            casefiles = cls._get_casefile_by_tags(organization_id=organization_id, requested_tags=requested_tags)
             if casefiles is not None:
                 result.append(*(list(map(lambda c: str(c), casefiles))))
             else:
@@ -89,8 +89,8 @@ class CaseFileService():
         # case_files = CaseFile.objects.filter(organization__id=organization.pk, tagSet__key=requested_tags["key"], tagSet__value__contains=requested_tags["value"]) # pylint: disable=no-member
         case_files: str = CaseFile.objects.filter(
             organization__id=organization_id,
-            tag__key=requested_tags["key"],
-            tag__value__contains=requested_tags["value"]
+            tagset__tag__key=requested_tags["key"],
+            tagset__tag__value__icontains=requested_tags["value"]
         )
         if len(case_files) > 0:
             dto_result = []
