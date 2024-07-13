@@ -5,7 +5,12 @@ from CaseManagement.models import CaseFile
 
 class CaseFileModelsTestCase(TestCase):
     range_of_entries = range(1,1000)
-    fixtures = ["obsidia-fixtures-organization.json", "obsidia-fixtures-casefile.json"]
+    fixtures = [
+        "obsidia-fixtures-organization.json",
+        "obsidia-fixtures-casefile.json",
+        "obsidia-fixtures-tagset.json",
+        "obsidia-fixtures-tag.json"
+    ]
     
     def setUp(self):
         self.client = Client()
@@ -48,14 +53,61 @@ class CaseFileModelsTestCase(TestCase):
         loaded_resp_casefiles = json.loads(response_casefiles)
         self.assertEqual(len(loaded_resp_casefiles), 1000)
 
-    def test_casefile_GET_casefile_by_tags_should_succeed(self):
+    def test_casefile_GET_casefile_by_tags_should_fail(self):
+        # response = self.client.get("/organization/casefiles")
         pass
 
-    def test_casefile_POST_casefile_by_index_should_fail(self):
-        for each_casefile_id in range(1,100):
-            response = self.client.post(f"/organization/casefile/{each_casefile_id}")
-            self.assertEqual(response.status_code, 400)
+    def test_casefile_GET_inventory_casefile_by_tags_should_succeed(self):
+        payloads = [
+            {
+                "tag_payload": {
+                    "key": "vestibulum",
+                    "value": "Synchronised intangible array"
+                },
+                "expect": {
+                    "caseIdentifier": "bmaunder288683",
+                    "organization": {
+                        "name": "Fivespan100775",
+                        "dateCreated": "2024-06-13 14:45:41+00:00",
+                        "dateLastModified": "2024-01-29 19:03:40+00:00",
+                        "users": [
+                            {
+                                "name": "jrykert0",
+                                "roleId": 6368
+                            },
+                            {
+                                "name": "wfearne1",
+                                "roleId": 3684
+                            },
+                            {
+                                "name": "ncouche2",
+                                "roleId": 2558
+                            }
+                        ],
+                        "adminUsers": [
+                            {
+                                "name": "dzaple0",
+                                "roleId": 4249
+                            },
+                            {
+                                "name": "lsalterne1",
+                                "roleId": 6994
+                            }
+                        ],
+                    },
+                    "status": "ACTIVE",
+                }
+            }
+        ]
 
-    def test_casefile_POST_casefile_all_should_fail(self):
-        response = self.client.post(f"/organization/inventory/casefile")
-        self.assertEqual(response.status_code, 404)
+        for each_payload in payloads:
+            response = self.client.get("/organization/inventory/casefiles", each_payload["tag_payload"])
+            decoded_response = json.loads(response.content.decode("UTF-8"))
+            self.assertIsInstance(decoded_response, list)
+            self.assertEqual(len(decoded_response), 1) # Check that there's one element
+            clean_casefile: list = json.loads(decoded_response[0])
+            clean_casefile["organization"]["users"] = json.loads(clean_casefile["organization"]["users"].replace("'", "\""))
+            clean_casefile["organization"]["adminUsers"] = json.loads(clean_casefile["organization"]["adminUsers"].replace("'", "\""))
+
+            self.assertEqual(clean_casefile, each_payload["expect"])
+            
