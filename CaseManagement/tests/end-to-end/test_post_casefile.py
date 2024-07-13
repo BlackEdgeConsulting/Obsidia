@@ -68,3 +68,12 @@ class OrganizationModelsPostTestCase(TestCase):
         for each_payload in payloads:
             response = self.client.post("/organization/casefile", data=each_payload, content_type="application/json", HTTP_X_REQUESTED_WITH="XMLHttpRequest")
             self.assertEqual(response.status_code, 201)
+
+    def test_casefile_POST_casefile_by_index_should_fail(self):
+        for each_casefile_id in range(1,100):
+            response = self.client.post(f"/organization/casefile/{each_casefile_id}")
+            self.assertEqual(response.status_code, 400)
+
+    def test_casefile_POST_casefile_all_should_fail(self):
+        response = self.client.post(f"/organization/inventory/casefile")
+        self.assertEqual(response.status_code, 404)
