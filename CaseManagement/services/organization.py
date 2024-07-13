@@ -50,9 +50,9 @@ class OrganizationService():
         return HttpResponse(result) if result is not None else Http404()
     
     @classmethod
-    def casefile_inventory(cls):
+    def casefile_inventory(cls, **kwargs):
         organization = cls._get_current_users_organization()
-        result: list[CaseFile] = CaseFileService.get_casefile(current_organization_id=organization.pk)
+        result: list[CaseFile] = CaseFileService.get_casefile(current_organization_id=organization.pk, **kwargs)
         stringified_result = json.dumps(result)
         return HttpResponse(stringified_result) if stringified_result is not None else Http404()
 
