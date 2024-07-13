@@ -84,24 +84,24 @@ class CaseFile(models.Model):
     def get_dto(self) -> DTOOrganization:
         return DTOCaseFile(properties=str(self))
 
-# class Tag(models.Model):
-#     key = models.CharField(
-#         max_length=DEFAULT_FIELD_LENGTH,
-#     )
-#     value = models.CharField(
-#         max_length=DEFAULT_FIELD_LENGTH,
-#     )
-#     # casefile = models.ForeignKey("CaseFile", on_delete=models.CASCADE, default=CaseFile.get_default_pk)
-#     casefile = models.ForeignKey("CaseFile",    
-#                        on_delete=models.CASCADE,
-#                        default=get_sentinel_casefile_id
-#                  )
+class TagSet(models.Model):
+    casefile = models.ForeignKey(CaseFile, on_delete=models.CASCADE)
+
+class Tag(models.Model):
+    key = models.CharField(
+        max_length=DEFAULT_FIELD_LENGTH,
+    )
+    value = models.CharField(
+        max_length=DEFAULT_FIELD_LENGTH,
+    )
+    tagSet = models.ForeignKey(TagSet, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return json.dumps({
+            "key": str(self.key),
+            "value": str(self.value)
+        })
     
-#     def __str__(self):
-#         return json.dumps({
-#             "key": str(self.key),
-#             "value": str(self.value)
-#         })
 
 class TargetOfInterest(models.Model):
     casefile = models.OneToOneField(
