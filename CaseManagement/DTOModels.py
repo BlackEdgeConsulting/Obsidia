@@ -67,10 +67,16 @@ class DTOCaseFile(BaseDTO):
     organization: dict = {}
     status: str = "ACTIVE"
     caseIdentifier: str = ""
+    tags: list = [
+        {
+            "key": "",
+            "value": ""
+        }
+    ]
 
     def __init__(self, *args, **kwargs) -> None:
         self.load_and_validate_properties(kwargs)
-        
+
     def __str__(self) -> str:
         return json.dumps(self.get_dict())
     
@@ -78,7 +84,8 @@ class DTOCaseFile(BaseDTO):
         return {
             "organization": self.organization,
             "status": self.status,
-            "caseIdentifier": self.caseIdentifier
+            "caseIdentifier": self.caseIdentifier,
+            "tags": self.tags
         }
     
     def is_valid(self, properties: dict) -> bool:
