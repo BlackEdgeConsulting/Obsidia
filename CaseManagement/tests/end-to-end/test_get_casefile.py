@@ -65,7 +65,7 @@ class CaseFileModelsTestCase(TestCase):
                     "value": "Synchronised intangible array"
                 },
                 "expect": {
-                    "caseIdentifier": "bmaunder288683",
+                    "caseIdentifier": "prizziellodn247325",
                     "organization": {
                         "name": "Fivespan100775",
                         "dateCreated": "2024-06-13 14:45:41+00:00",
@@ -95,7 +95,13 @@ class CaseFileModelsTestCase(TestCase):
                             }
                         ],
                     },
-                    "status": "ACTIVE",
+                    "status": "PENDING",
+                    "tags": [
+                        {
+                            "key": "",
+                            "value": ""
+                        }
+                    ]
                 }
             }
         ]
@@ -103,8 +109,10 @@ class CaseFileModelsTestCase(TestCase):
         for each_payload in payloads:
             response = self.client.get("/organization/inventory/casefiles", each_payload["tag_payload"])
             decoded_response = json.loads(response.content.decode("UTF-8"))
+            
             self.assertIsInstance(decoded_response, list)
             self.assertEqual(len(decoded_response), 1) # Check that there's one element
+            
             clean_casefile: list = json.loads(decoded_response[0])
             clean_casefile["organization"]["users"] = json.loads(clean_casefile["organization"]["users"].replace("'", "\""))
             clean_casefile["organization"]["adminUsers"] = json.loads(clean_casefile["organization"]["adminUsers"].replace("'", "\""))

@@ -77,3 +77,41 @@ class OrganizationModelsPostTestCase(TestCase):
     def test_casefile_POST_casefile_all_should_fail(self):
         response = self.client.post(f"/organization/inventory/casefile")
         self.assertEqual(response.status_code, 404)
+
+    def test_casefile_POST_casefile_with_tags(self):
+        payloads = [
+            {
+                "caseIdentifier": "oiadf8739lk",
+                "organization": 1,
+                "tags": [
+                    {
+                        "key": "something",
+                        "value": "asdh76"
+                    }
+                ]
+            },
+            {
+                "caseIdentifier": "ojdsf973rhiohifh",
+                "organization": 1,
+                "status": "ACTIVE",
+                "tags": [
+                    {
+                        "key": "something",
+                        "value": "asdh76"
+                    },
+                    {
+                        "key": "somethingElse",
+                        "value": "ihsdf7893"
+                    }
+                ]
+            },
+        ]
+
+        for each_payload in payloads:
+            response = self.client.post("/organization/casefile", data=each_payload, content_type="application/json", HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(response.content.decode("UTF-8"), "Created the new casefile!")
+        
+
+    def test_casefile_POST_casefile_add_tags(self):
+        pass
