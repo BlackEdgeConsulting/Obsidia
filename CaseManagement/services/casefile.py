@@ -1,8 +1,7 @@
 import json
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_list_or_404, get_object_or_404, render
-from CaseManagement.DTOModels import DTOOrganization, DTOCaseFile
-from CaseManagement.models import CaseFile, Organization
+from django.http import HttpResponse
+from CaseManagement.DTOModels import DTOCaseFile
+from CaseManagement.models import CaseFile, Organization, TagSet, Tag
 
 class CaseFileService():
     @classmethod
@@ -15,21 +14,12 @@ class CaseFileService():
             # If there's an ID then we only get one
             casefiles: list[CaseFile] = cls._get_casefile_by_id(casefile_id, organization_id)
             if casefiles is not None:
-                # dto_result: list[DTOCaseFile] = []
                 for each_casefile in list(casefiles):
                     dto = DTOCaseFile(properties=str(each_casefile))
                     result.append(str(dto))
-                    # dto_result.append(dto)
-
-                # result.append(*(list(map(lambda c: str(c), dto_result))))
             else:
                 return result
         elif requested_tags:
-            # TODO: Refactor, if there's tags then we get it by tags
-            # requested_tags = {
-            #     "key": "name",
-            #     "value": "OBSID"
-            # }
             casefiles = cls._get_casefile_by_tags(organization_id=organization_id, requested_tags=requested_tags)
             if casefiles is not None:
                 result.append(*(list(map(lambda c: str(c), casefiles))))
@@ -43,25 +33,45 @@ class CaseFileService():
             
             for each_casefile in casefiles:
                 dto = DTOCaseFile(properties=str(each_casefile))
-                # dto_result.append(dto)
                 result.append(str(dto))
-
-            # result.append(*(list(map(lambda c: str(c), dto_result))))
 
         return result
     
     @classmethod
     def create_new_casefile(cls, request):
         try:
-            new_casefile = cls._create_new_casefile(request)
-            new_casefile.save()
+            decoded_request = request.body.decode("UTF-8")
+            loaded_request = json.loads(decoded_request)
+            new_casefile = cls._create_new_casefile(decoded_request=decoded_request)
+            try:
+                new_casefile.save()
+            except:
+                return HttpResponse("Failed to save the new casefile! Invalid casefile request", status=400)
+            
+            
+            new_tagset = cls._create_new_tagset(casefile_id=new_casefile.pk)
+            try:
+                new_tagset.save()
+            except:
+                return HttpResponse("Failed to save the tagset! Invalid tagset request", status=400)
+            
+            if "tags" in loaded_request.keys() and loaded_request["tags"] is not None and isinstance(loaded_request["tags"], list) and len(loaded_request["tags"]) > 0:
+                new_tags: list = cls._create_new_tags(new_tagset.pk, loaded_request)
+                try:
+                    if isinstance(new_tags, list) and len(new_tags) > 0:
+                        map(lambda t: t.save(), new_tags)
+                    else:
+                        raise Exception("Failed to save tags to Database")
+                except:
+                    return HttpResponse("Failed to save the new tags! Invalid tag request", status=400)
+            
+            
         except:
             return HttpResponse("Failed to create new casefile!", status=400)
         return HttpResponse("Created the new casefile!", status=201)
     
     @classmethod
-    def _create_new_casefile(cls, request) -> CaseFile:
-        decoded_request = request.body.decode("UTF-8")
+    def _create_new_casefile(cls, decoded_request) -> CaseFile:
         dto_casefile = DTOCaseFile(properties=decoded_request)
         org = Organization.objects.get(pk=dto_casefile.organization)
         return CaseFile(
@@ -71,22 +81,37 @@ class CaseFileService():
         )
     
     @classmethod
+    def _create_new_tagset(cls, casefile_id):
+        casefile = CaseFile.objects.get(pk=casefile_id)
+        return TagSet(
+            casefile=casefile
+        )
+
+    @classmethod
+    def _create_new_tags(cls, tagset_id: int, loaded_casefile):
+        tags: list[dict] = loaded_casefile["tags"]
+        tagSet = TagSet.objects.get(pk=tagset_id)
+        tag_objects = []
+        for each_tag in tags:
+            tag_objects.append(
+                Tag(
+                    key=each_tag["key"],
+                    value=each_tag["value"],
+                    tagSet=tagSet
+                )
+            )
+        return tag_objects
+    
+    @classmethod
     def _get_casefile_by_id(cls, casefile_id: int|str, organization_id: int|str) -> list|None:
         casefiles = CaseFile.objects.filter(pk=casefile_id, organization__id=organization_id) # pylint: disable=no-member
         if len(casefiles) > 0:
-            # dto_result = []
-            # for each_casefile in list(casefiles):
-            #     dto = DTOCaseFile(properties=str(each_casefile))
-            #     dto_result.append(dto)
-
-            # return dto_result
             return casefiles
         else:
             return None
         
     @classmethod
     def _get_casefile_by_tags(cls, organization_id, requested_tags: list[dict] = []):
-        # case_files = CaseFile.objects.filter(organization__id=organization.pk, tagSet__key=requested_tags["key"], tagSet__value__contains=requested_tags["value"]) # pylint: disable=no-member
         case_files: str = CaseFile.objects.filter(
             organization__id=organization_id,
             tagset__tag__key=requested_tags["key"],
@@ -95,6 +120,7 @@ class CaseFileService():
         if len(case_files) > 0:
             dto_result = []
             for each_casefile in list(case_files):
+                tagset = TagSet.objects.get(casefile=each_casefile)
                 dto = DTOCaseFile(properties=str(each_casefile))
                 dto_result.append(dto)
 
