@@ -2,7 +2,7 @@ import json
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 from CaseManagement.DTOModels import DTOOrganization, DTOCaseFile
-from CaseManagement.models import CaseFile, Organization
+from CaseManagement.models import CaseFile, Organization, Tag
 from CaseManagement.services.casefile import CaseFileService
 
 class OrganizationService():
@@ -56,10 +56,11 @@ class OrganizationService():
         stringified_result = json.dumps(result)
         return HttpResponse(stringified_result) if stringified_result is not None else Http404()
 
-    # @classmethod
-    # def get_tag_keys_in_use(cls):
-    #     tag_keys = cls._get_tag_keys_in_use()
-    #     return HttpResponse(tag_keys)
+    @classmethod
+    def get_tag_keys_in_use(cls):
+        tag_keys: list = cls._get_tag_keys_in_use()
+        dumped_tag_keys: str = json.dumps(tag_keys)
+        return HttpResponse(dumped_tag_keys)
     
     @classmethod
     def _get_organization_by_id(cls, org_id):
@@ -95,11 +96,15 @@ class OrganizationService():
         # then we need to go back here and enhance this
         return 1
     
-    # @classmethod
-    # def _get_tag_keys_in_use(cls):
-    #     organization = cls._get_current_users_organization()
-    #     tags = Tag.objects.filter( # pylint: disable=no-member
-    #         casefile__in=CaseFile.objects.filter(organization__id=organization.pk) # pylint: disable=no-member
-    #     ).distinct()
-    #     tag_keys = list(map(lambda t: t.key, tags))
-    #     return tag_keys
+    @classmethod
+    def _get_tag_keys_in_use(cls):
+        # FIXME: Needs fixed
+        organization = cls._get_current_users_organization()
+        casefiles_in_inventory = CaseFileService.get_casefile(current_organization_id=organization.pk)
+        loaded_casefiles = list(map(lambda c: json.loads(c), casefiles_in_inventory))
+        casefile_ids = list(map(lambda c: c["caseIdentifier"], loaded_casefiles))
+        tags = Tag.objects.filter( # pylint: disable=no-member
+            tagSet__casefile__caseIdentifier__in=casefile_ids # pylint: disable=no-member
+        ).distinct()
+        tag_keys = list(map(lambda t: t.key, tags))
+        return tag_keys
