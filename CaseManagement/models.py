@@ -85,7 +85,7 @@ class CaseFile(models.Model):
         return DTOCaseFile(properties=str(self))
 
 class TagSet(models.Model):
-    casefile = models.ForeignKey(CaseFile, on_delete=models.CASCADE)
+    casefile = models.OneToOneField(CaseFile, on_delete=models.CASCADE)
 
 class Tag(models.Model):
     key = models.CharField(
