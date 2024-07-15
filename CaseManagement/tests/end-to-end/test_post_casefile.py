@@ -32,7 +32,7 @@ class OrganizationModelsPostTestCase(TestCase):
             response = self.client.post("/organization/new", data=each_payload, content_type="application/json", HTTP_X_REQUESTED_WITH="XMLHttpRequest")
             self.assertEqual(response.status_code, 400)
 
-    def test_organization_POST_create_new_casefile_should_succeed(self):
+    def test_organization_POST_create_new_casefile_BASIC_should_succeed(self):
         """Test that we can adequately post to create a new organization."""
         payloads = [
             {
@@ -113,5 +113,8 @@ class OrganizationModelsPostTestCase(TestCase):
             self.assertEqual(response.content.decode("UTF-8"), "Created the new casefile!")
         
 
-    def test_casefile_POST_casefile_add_tags(self):
+    def test_casefile_POST_casefile_with_full_target(self):
+        pass
+
+    def test_Casefile_POST_casefile_with_partial_target(self):
         pass
