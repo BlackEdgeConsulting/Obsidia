@@ -40,7 +40,7 @@ def handle_organization_inventory(request, **kwargs):
 def handle_casefile_inventory(request, **kwargs):
     if request.method == ValidHttpType.GET.name:
         querydict = dict(request.GET)
-        casefiles = _handle_get_tags(querydict)
+        casefiles = _handle_get_by_tags(querydict)
         if casefiles is not None:
             return casefiles
         
@@ -64,7 +64,7 @@ def handle_casefile(request, **kwargs):
         return CaseFileService.create_new_casefile(request)
     return HttpResponseNotAllowed([ValidHttpType.GET.name, ValidHttpType.POST.name])
 
-def _handle_get_tags(querydict):
+def _handle_get_by_tags(querydict):
     if len(list(querydict.items())) > 0:
         if Validators.is_valid_tag(querydict):
             querydict["key"] = querydict["key"][0] if isinstance(querydict["key"], list) else querydict["key"]
