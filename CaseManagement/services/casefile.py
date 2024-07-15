@@ -1,7 +1,7 @@
 import json
 from django.http import HttpResponse
 from CaseManagement.DTOModels import DTOCaseFile
-from CaseManagement.models import CaseFile, Organization, TagSet, Tag
+from CaseManagement.models import CaseFile, Organization, TagSet, Tag, TargetOfInterest
 
 class CaseFileService():
     @classmethod
@@ -16,6 +16,11 @@ class CaseFileService():
             if casefiles is not None:
                 for each_casefile in list(casefiles):
                     dto = DTOCaseFile(properties=str(each_casefile))
+                    try:
+                        targetOfInterest = TargetOfInterest.objects.get(casefile=each_casefile)
+                        dto.targetOfInterest = str(targetOfInterest)
+                    except:
+                        raise Exception("Failed to build Target of Interest")
                     result.append(str(dto))
             else:
                 return result
@@ -120,8 +125,11 @@ class CaseFileService():
         if len(case_files) > 0:
             dto_result = []
             for each_casefile in list(case_files):
-                tagset = TagSet.objects.get(casefile=each_casefile)
+                tags = Tag.objects.filter(
+                    tagSet__casefile=each_casefile
+                )
                 dto = DTOCaseFile(properties=str(each_casefile))
+                dto.tags = list(map(lambda t: json.loads(str(t)),tags))
                 dto_result.append(dto)
 
             return dto_result
