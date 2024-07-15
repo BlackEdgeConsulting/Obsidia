@@ -123,7 +123,24 @@ class TargetOfInterest(models.Model):
     governmentIssueId = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
     additionalIdentifications = models.TextField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
 
-    # TODO: Make a dictionary containing all the properties on this model listed above
-    # and return the json.dumps() of that. e.g. { "name": self.name, ... }
+    # TODO: Current task. Fix so the datetime is str
     def __str__(self) -> str:
-        return str(self.fullName)
+        return json.dumps(self.get_dict())
+    
+    def get_dict(self) -> dict:
+        return {
+            "firstName": str(self.firstName),
+            "middleNames": str(self.middleNames),
+            "lastName": str(self.lastName),
+            "fullName": str(self.fullName),
+            "additionalNames": str(self.additionalNames),
+            "dateOfBirth": str(self.dateOfBirth),
+            "currentAddress": str(self.currentAddress),
+            "previousAddresses": str(self.previousAddresses),
+            "associatedAddresses": str(self.associatedAddresses),
+            "targetJustification": str(self.targetJustification),
+            "socialSecurityNumber": str(self.socialSecurityNumber),
+            "driversLicenseNumber": str(self.driversLicenseNumber),
+            "governmentIssueId": str(self.governmentIssueId),
+            "additionalIdentifications": str(self.additionalIdentifications)
+        }
