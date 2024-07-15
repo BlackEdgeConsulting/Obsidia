@@ -1,13 +1,14 @@
 import json
 from django.test import TestCase, Client
 from datetime import date, datetime
-from CaseManagement.models import CaseFile
+from CaseManagement.models import CaseFile, TargetOfInterest
 
 class CaseFileModelsTestCase(TestCase):
     range_of_entries = range(1,1000)
     fixtures = [
         "obsidia-fixtures-organization.json",
         "obsidia-fixtures-casefile.json",
+        "obsidia-fixtures-target-of-interest.json",
         "obsidia-fixtures-tagset.json",
         "obsidia-fixtures-tag.json"
     ]
@@ -22,7 +23,10 @@ class CaseFileModelsTestCase(TestCase):
             response_casefile = response.content.decode("UTF-8")
 
             casefile_obj: CaseFile = CaseFile.objects.get(pk=each_casefile_id)
+            target_of_interest: TargetOfInterest = TargetOfInterest.objects.get(casefile=each_casefile_id)
             dto_casefile = casefile_obj.get_dto()
+            dto_casefile.targetOfInterest = str(target_of_interest)
+
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(str(dto_casefile), response_casefile)
@@ -98,10 +102,26 @@ class CaseFileModelsTestCase(TestCase):
                     "status": "PENDING",
                     "tags": [
                         {
-                            "key": "",
-                            "value": ""
+                            "key": "vestibulum",
+                            "value": "Synchronised intangible array"
                         }
-                    ]
+                    ],
+                    "targetOfInterest": {
+                        "firstName": "",
+                        "middleNames": "",
+                        "lastName": "",
+                        "fullName": "",
+                        "additionalNames": "",
+                        "dateOfBirth": "",
+                        "currentAddress": "",
+                        "previousAddresses": [],
+                        "associatedAddresses": [],
+                        "targetJustification": "",
+                        "socialSecurityNumber": "",
+                        "driversLicenseNumber": "",
+                        "governmentIssueId": "",
+                        "additionalIdentifications": ""
+                    }
                 }
             }
         ]
