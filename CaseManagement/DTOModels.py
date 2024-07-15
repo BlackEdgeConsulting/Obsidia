@@ -73,6 +73,23 @@ class DTOCaseFile(BaseDTO):
             "value": ""
         }
     ]
+    targetOfInterest: dict = {
+        "firstName": "",
+        "middleNames": "",
+        "lastName": "",
+        "fullName": "",
+        "additionalNames": "",
+        "dateOfBirth": "",
+        "currentAddress": "",
+        "previousAddresses": [],
+        "associatedAddresses": [],
+        "targetJustification": "",
+        "socialSecurityNumber": "",
+        "driversLicenseNumber": "",
+        "governmentIssueId": "",
+        "additionalIdentifications": ""
+    }
+    
 
     def __init__(self, *args, **kwargs) -> None:
         self.load_and_validate_properties(kwargs)
@@ -85,7 +102,8 @@ class DTOCaseFile(BaseDTO):
             "organization": self.organization,
             "status": self.status,
             "caseIdentifier": self.caseIdentifier,
-            "tags": self.tags
+            "tags": self.tags,
+            "targetOfInterest": self.targetOfInterest
         }
     
     def is_valid(self, properties: dict) -> bool:
@@ -106,15 +124,9 @@ class DTOCaseFile(BaseDTO):
 
         return all(validation_checks)
 
-class DTOTargetOfInterest():
-    firstName = ""
-    middleNames = ""
-    lastName = ""
-    fullName = ""
-    additionalNames = ""
-    dateOfBirth = ""
-    currentAddress = ""
+# class DTOTargetOfInterest():
 
-class DTOCaseFileTag():
-    key: str = ""
-    value: str = ""
+
+# class DTOCaseFileTag():
+#     key: str = ""
+#     value: str = ""
