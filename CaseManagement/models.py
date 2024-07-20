@@ -56,10 +56,6 @@ class CaseFile(models.Model):
         STATUS_PENDING: "Pending"
     }
 
-    
-
-        
-
     caseIdentifier = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     dateCreated = models.DateTimeField("date created", auto_now_add=True)
