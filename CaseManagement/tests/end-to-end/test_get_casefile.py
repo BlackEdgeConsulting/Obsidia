@@ -112,7 +112,7 @@ class CaseFileModelsTestCase(TestCase):
                         "lastName": "",
                         "fullName": "",
                         "additionalNames": "",
-                        "dateOfBirth": "",
+                        "dateOfBirth": "1536-08-26T15:13:46Z",
                         "currentAddress": "",
                         "previousAddresses": [],
                         "associatedAddresses": [],
