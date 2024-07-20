@@ -56,6 +56,10 @@ class CaseFile(models.Model):
         STATUS_PENDING: "Pending"
     }
 
+    
+
+        
+
     caseIdentifier = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     dateCreated = models.DateTimeField("date created", auto_now_add=True)
@@ -109,19 +113,19 @@ class TargetOfInterest(models.Model):
         on_delete=models.CASCADE
     )
     firstName = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
-    middleNames = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
-    lastName = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
+    middleNames = models.CharField(max_length=DEFAULT_FIELD_LENGTH, default="")
+    lastName = models.CharField(max_length=DEFAULT_FIELD_LENGTH, default="")
     fullName = models.CharField(max_length=DEFAULT_FIELD_LENGTH)
-    additionalNames = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
-    dateOfBirth = models.DateTimeField("Date of Birth", blank=True)
-    currentAddress = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
-    previousAddresses = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
-    associatedAddresses = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
-    targetJustification = models.TextField(max_length=1000, blank=True)
-    socialSecurityNumber = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
-    driversLicenseNumber = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
-    governmentIssueId = models.CharField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
-    additionalIdentifications = models.TextField(max_length=DEFAULT_FIELD_LENGTH, blank=True)
+    additionalNames = models.CharField(max_length=DEFAULT_FIELD_LENGTH, default="")
+    dateOfBirth = models.DateTimeField("Date of Birth", default="1536-08-26T15:13:46Z")
+    currentAddress = models.CharField(max_length=DEFAULT_FIELD_LENGTH, default="")
+    previousAddresses = models.CharField(max_length=DEFAULT_FIELD_LENGTH, default="")
+    associatedAddresses = models.CharField(max_length=DEFAULT_FIELD_LENGTH, default="")
+    targetJustification = models.TextField(max_length=1000, default="")
+    socialSecurityNumber = models.CharField(max_length=DEFAULT_FIELD_LENGTH, default="")
+    driversLicenseNumber = models.CharField(max_length=DEFAULT_FIELD_LENGTH, default="")
+    governmentIssueId = models.CharField(max_length=DEFAULT_FIELD_LENGTH, default="")
+    additionalIdentifications = models.TextField(max_length=DEFAULT_FIELD_LENGTH, default="")
 
     # TODO: Current task. Fix so the datetime is str
     def __str__(self) -> str:
