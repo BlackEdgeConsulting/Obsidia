@@ -23,11 +23,14 @@ class BaseDTO():
                 setattr(self, key, value)
 
     def load_and_validate_properties(self, kwargs):
-        properties: str = kwargs.get("properties")
-        loaded_properties: dict = json.loads(properties)
-        if self.is_valid(loaded_properties):
-            self.set_properties(loaded_properties)
-        else:
+        try:
+            properties: str = kwargs.get("properties")
+            loaded_properties: dict = json.loads(properties)
+            if self.is_valid(loaded_properties):
+                self.set_properties(loaded_properties)
+            else:
+                raise RuntimeError()
+        except:
             raise RuntimeError(f"Request object was not valid. Request: {properties}")
 
 class DTOOrganization(BaseDTO):
@@ -93,6 +96,8 @@ class DTOCaseFile(BaseDTO):
 
     def __init__(self, *args, **kwargs) -> None:
         self.load_and_validate_properties(kwargs)
+        if "dateOfBirth" in self.targetOfInterest.keys() and self.targetOfInterest["dateOfBirth"] == "":
+            self.targetOfInterest["dateOfBirth"] = "1536-08-26T15:13:46Z"
 
     def __str__(self) -> str:
         return json.dumps(self.get_dict())
