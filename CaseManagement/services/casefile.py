@@ -45,32 +45,12 @@ class CaseFileService():
     @classmethod
     def create_new_casefile(cls, request):
         try:
-            decoded_request = request.body.decode("UTF-8")
-            loaded_request = json.loads(decoded_request)
-            new_casefile = cls._create_new_casefile(decoded_request=decoded_request)
             try:
-                new_casefile.save()
+                decoded_request: str = request.body.decode("UTF-8")
+                loaded_request: dict = json.loads(decoded_request) # Simply try to interpret it before moving on
             except:
-                return HttpResponse("Failed to save the new casefile! Invalid casefile request", status=400)
-            
-            
-            new_tagset = cls._create_new_tagset(casefile_id=new_casefile.pk)
-            try:
-                new_tagset.save()
-            except:
-                return HttpResponse("Failed to save the tagset! Invalid tagset request", status=400)
-            
-            if "tags" in loaded_request.keys() and loaded_request["tags"] is not None and isinstance(loaded_request["tags"], list) and len(loaded_request["tags"]) > 0:
-                new_tags: list = cls._create_new_tags(new_tagset.pk, loaded_request)
-                try:
-                    if isinstance(new_tags, list) and len(new_tags) > 0:
-                        map(lambda t: t.save(), new_tags)
-                    else:
-                        raise Exception("Failed to save tags to Database")
-                except:
-                    return HttpResponse("Failed to save the new tags! Invalid tag request", status=400)
-            
-            
+                decoded_request: str = json.dumps({})
+            new_casefile = cls._create_new_casefile(decoded_request=decoded_request)            
         except:
             return HttpResponse("Failed to create new casefile!", status=400)
         return HttpResponse("Created the new casefile!", status=201)
@@ -79,11 +59,49 @@ class CaseFileService():
     def _create_new_casefile(cls, decoded_request) -> CaseFile:
         dto_casefile = DTOCaseFile(properties=decoded_request)
         org = Organization.objects.get(pk=dto_casefile.organization)
-        return CaseFile(
-            caseIdentifier=dto_casefile.caseIdentifier,
+
+        new_casefile = CaseFile(
             organization=org,
+            caseIdentifier=dto_casefile.caseIdentifier,
             status=dto_casefile.status
         )
+        try:
+            new_casefile.save()
+        except:
+            return HttpResponse("Failed to save the new casefile! Invalid casefile request", status=400)
+        
+
+        new_target = cls._create_new_target(new_casefile_id=new_casefile.pk, casefile_dto=dto_casefile)
+        try:
+            new_target.save()
+        except:
+            return HttpResponse("Failed to save the target! Invalid tagset request", status=400)
+
+        new_tagset = cls._create_new_tagset(casefile_id=new_casefile.pk)
+        try:
+            new_tagset.save()
+        except:
+            return HttpResponse("Failed to save the tagset! Invalid tagset request", status=400)
+
+        if dto_casefile.tags is not None and isinstance(dto_casefile.tags, list) and len(dto_casefile.tags) > 0:
+            new_tags: list = cls._create_new_tags(new_tagset.pk, dto_casefile.tags)
+            try:
+                if isinstance(new_tags, list) and len(new_tags) > 0:
+                    map(lambda t: t.save(), new_tags)
+                else:
+                    raise Exception("Failed to save tags to Database")
+            except:
+                return HttpResponse("Failed to save the new tags! Invalid tag request", status=400)
+
+        return new_casefile
+
+    @classmethod
+    def _create_new_target(cls, new_casefile_id: int, casefile_dto: DTOCaseFile):
+        # FIXME: Sometimes the DoB ends up as `None` and the db doesn't like that.
+        # Need to fix it
+        casefile = CaseFile.objects.get(pk=new_casefile_id)
+        target_properties = casefile_dto.targetOfInterest
+        return TargetOfInterest(casefile=casefile, **target_properties)
     
     @classmethod
     def _create_new_tagset(cls, casefile_id):
@@ -93,8 +111,7 @@ class CaseFileService():
         )
 
     @classmethod
-    def _create_new_tags(cls, tagset_id: int, loaded_casefile):
-        tags: list[dict] = loaded_casefile["tags"]
+    def _create_new_tags(cls, tagset_id: int, tags):
         tagSet = TagSet.objects.get(pk=tagset_id)
         tag_objects = []
         for each_tag in tags:
