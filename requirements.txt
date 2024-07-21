@@ -5,7 +5,7 @@ dnspython==2.6.1
 iniconfig==2.0.0
 packaging==24.1
 pluggy==1.5.0
-pykerberos==1.2.4
+# pykerberos==1.2.4
 pymongo==4.6.3
 pytest==8.2.2
 pytest-django==4.8.0
