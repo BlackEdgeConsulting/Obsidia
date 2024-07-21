@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tag',
             name='casefile',
-            field=models.ForeignKey(default=CaseManagement.models.CaseFile.get_default_pk, on_delete=django.db.models.deletion.CASCADE, to='CaseManagement.casefile'),
+            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='CaseManagement.casefile'),
         ),
         migrations.AlterField(
             model_name='casefile',

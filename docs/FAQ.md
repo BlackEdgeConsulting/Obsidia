@@ -5,3 +5,7 @@ organization = _get_current_users_organization()
 tags = CaseFile.objects.filter(organization__id=organization.pk).select_related("tagSet__key") # pylint: disable=no-member
 return HttpResponse(tags)
 ```
+
+## 403 Error When POSTing - Forbidden (CSRF cookie not set)
+Sometimes when you attempt to post to an endpoint that doesn't handle HTTP then you'll get an error of `Forbidden (CSRF cookie not set.): ...`. This can be temporarily mitigated by doing:
+- `CSRF_COOKIE_SECURE = True`

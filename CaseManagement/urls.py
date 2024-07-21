@@ -1,13 +1,15 @@
 from django.urls import path
 
-from . import organization_views
+from . import views
 
 urlpatterns = [
-    path("", organization_views.current_organization, name="currentOrganization"),
-    path("<int:org_id>/", organization_views.get_organization_by_id, name="organizationById"),
-    path("inventory", organization_views.inventory, name="inventory"),
-    path("casefile/<int:casefile_id>", organization_views.get_casefile_by_id, name="casefile"),
-    path("casefile/all", organization_views.inventory, name="all_casefiles"),
-    path("casefile/by_tags", organization_views.get_casefile_by_tags, name="all_casefiles"),
-    path("tags_in_use", organization_views.get_tag_keys_in_use, name="all_tag_keys")
+    path("", views.handle_organization_landing, name="currentOrganization"),
+    path("new", views.handle_organization_new, name="newOrganization"),
+    path("<int:org_id>", views.handle_organization_by_index, name="organizationById"),
+    path("inventory", views.handle_organization_inventory, name="inventory"),
+    path("inventory/casefiles", views.handle_casefile_inventory, name="inventory"),
+    path("inventory/tags", views.handle_tags_inventory, name="inventory"),
+    path("casefile", views.handle_casefile, name="casefile"),
+    path("casefile/<int:casefile_id>", views.handle_casefile, name="casefile"),
+    path("casefile/by_tags", views.handle_casefile, name="all_casefiles"),
 ]

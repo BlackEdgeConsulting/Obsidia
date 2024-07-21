@@ -45,7 +45,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware', # FIXME: Turn this back on when we're ready
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -80,14 +80,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'mongodb': {
-        'ENGINE': 'obsidia.db.backends.mongdb',
-        "NAME": "obsidia",
-        "USER": os.environ.get("OBSIDIA_DB_USER"),
-        "PASSWORD": os.environ.get("OBSIDIA_DB_PASSWORD"),
-        "HOST": os.environ.get("OBSIDIA_DB_HOST", "127.0.0.1"),
-        "PORT": os.environ.get("OBSIDIA_DB_PORT", "8000"),
-    }
+    # 'mongodb': {
+    #     'ENGINE': 'obsidia.db.backends.mongdb',
+    #     "NAME": "obsidia",
+    #     "USER": os.environ.get("OBSIDIA_DB_USER"),
+    #     "PASSWORD": os.environ.get("OBSIDIA_DB_PASSWORD"),
+    #     "HOST": os.environ.get("OBSIDIA_DB_HOST", "127.0.0.1"),
+    #     "PORT": os.environ.get("OBSIDIA_DB_PORT", "8000"),
+    # }
 }
 
 
