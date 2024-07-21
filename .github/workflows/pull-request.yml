@@ -1,0 +1,55 @@
+name: pull request workflow
+
+run-name: ${{ github.actor }} has opened a PR; we're testing it
+
+on:
+    pull_request:
+      types: [opened, reopened]
+
+env:
+  TEST_TAG: cypher4859/obsidia-api:test
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run Tests
+        if: ${{ hashFiles('./tests/') != '' }}
+        run: |
+          docker build --pull --target test -t ${{ env.TEST_TAG }} .
+
+  build-push-image-test:
+    runs-on: ubuntu-latest
+    needs:
+      - run-tests
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ env.TEST_TAG }}
