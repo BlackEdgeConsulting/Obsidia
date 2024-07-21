@@ -144,3 +144,4 @@ class TargetOfInterest(models.Model):
             "governmentIssueId": str(self.governmentIssueId),
             "additionalIdentifications": str(self.additionalIdentifications)
         }
+
