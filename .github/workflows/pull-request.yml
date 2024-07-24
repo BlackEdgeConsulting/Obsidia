@@ -3,7 +3,7 @@ name: pull request workflow
 run-name: ${{ github.actor }} has opened a PR for branch ${{ github.head_ref }}; we're testing it
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened]
 
 env:
