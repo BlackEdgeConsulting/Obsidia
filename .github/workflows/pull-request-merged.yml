@@ -1,6 +1,6 @@
 name: pull request workflow
 
-run-name: ${{ github.actor }} has opened a PR for branch ${{ github.head_ref }}; we're testing it
+run-name: ${{ github.actor }} has merged a PR Successfully! We're updating the test image release
 
 on:
   pull_request:
