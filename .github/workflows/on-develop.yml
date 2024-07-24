@@ -1,6 +1,6 @@
 name: main
 
-run-name: ${{ github.actor }} is running pipeline on main
+run-name: ${{ github.actor }} is running pipeline on ${GITHUB_HEAD_REF}
 
 on:
   push:

@@ -1,10 +1,10 @@
 name: pull request workflow
 
-run-name: ${{ github.actor }} has opened a PR; we're testing it
+run-name: ${{ github.actor }} has opened a PR for branch ${{ github.head_ref }}; we're testing it
 
 on:
-    pull_request:
-      types: [opened, reopened]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 env:
   TEST_TAG: cypher4859/obsidia-api:test
@@ -52,4 +52,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ env.TEST_TAG }}
+          tags: "${{ env.TEST_TAG }}-${{ github.head_ref }}"
