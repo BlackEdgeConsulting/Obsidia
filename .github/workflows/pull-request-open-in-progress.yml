@@ -33,13 +33,13 @@ jobs:
       - run-tests
 
     steps:
-      - name: Checkout
+      - name: (Dependency) Checkout
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
+      - name: (Dependency) Set up QEMU
         uses: docker/setup-qemu-action@v3
       
-      - name: Set up Docker Buildx
+      - name: (Dependency) Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       
       - name: Login to Docker Hub
@@ -48,7 +48,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      - name: Build and push
+      - name: Build and push to obsidia-api:test-${{ github.head_ref }}
         uses: docker/build-push-action@v5
         with:
           push: true
