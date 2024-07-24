@@ -1,0 +1,40 @@
+name: main
+
+run-name: ${{ github.actor }} is running pipeline on ${{ github.head_ref }}
+
+on:
+  push:
+    branches:
+      - "develop"
+
+env:
+  TEST_TAG: cypher4859/obsidia-api:test
+  # LATEST_TAG: cypher4859/obsidia-api:latest
+  LATEST_DEVELOP: cypher4859/obsidia-api:latest-develop
+
+
+jobs:
+  build-push-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ env.LATEST_DEVELOP }}
