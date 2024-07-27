@@ -1,29 +1,35 @@
-name: main
+name: Test environment workflow
 
-run-name: ${{ github.actor }} is running pipeline on develop
+run-name: ${{ github.actor }} has pushed obsidia to the test environment
 
 on:
   push:
     branches:
-      - "develop"
+      - "test"
 
 env:
+  LATEST_TEST: cypher4859/obsidia-api:latest-test
   LATEST_DEVELOP: cypher4859/obsidia-api:latest-develop
 
 jobs:
-  build-push-develop-image:
+  build-push-test-image:
     runs-on: ubuntu-latest
-    environment: develop
+    environment: test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
       
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
+      - name: Run Tests
+        if: ${{ hashFiles('./tests/') != '' }}
+        run: |
+          docker image tag ${{ env.LATEST_DEVELOP }} ${{ env.LATEST_TEST }}
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
