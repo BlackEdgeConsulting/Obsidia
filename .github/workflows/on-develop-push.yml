@@ -8,15 +8,12 @@ on:
       - "develop"
 
 env:
-  TEST_TAG: cypher4859/obsidia-api:test
-  # LATEST_TAG: cypher4859/obsidia-api:latest
   LATEST_DEVELOP: cypher4859/obsidia-api:latest-develop
 
-
 jobs:
-  build-push-image:
+  build-push-develop-image:
     runs-on: ubuntu-latest
-
+    environment: Develop
     steps:
       - name: Checkout
         uses: actions/checkout@v4
