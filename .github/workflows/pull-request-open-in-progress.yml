@@ -10,7 +10,7 @@ env:
   PR_IMAGE_TAG: cypher4859/obsidia-api:pr
 
 jobs:
-  run-tests:
+  pr-to-develop-run-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
